@@ -1,22 +1,21 @@
-# *`FT_NMAP`*
+# *`port_scanner`*
+```
+- initial ICMP ping: performs an ICMP ping to verify host connectivity before scanning.
+- scans like nmap: Perform SYN, ACK, FIN, NULL, XMAS, and UDP scans.
+- custom TCP flags: specify custom TCP flags combinations using the --flags option.
+- service detection: tries to identify potential services by comparing ports and transport protocols
+  to the Service Name and Transport Protocol Port Number Registry.
+```
 
-## key features
-- initial ICMP ping: Prior to port scanning, the tool performs an ICMP ping to verify host connectivity.
-- Nmap-like scans: Perform SYN, ACK, FIN, NULL, XMAS, and UDP scans to identify open ports and running services.
-- Custom TCP flags: Customize scan behavior by specifying custom TCP flag combinations using the --flags option.
-- Service detection: Attempts to identify potential services by comparing ports and transport protocols to the Service Name and Transport Protocol Port Number Registry.
-## requirements
-- linux
-- root privilege
 ## usage
 ```
-$ ft_nmap [OPTIONS] TARGET PORT(S)
+$ pscan [OPTIONS] TARGET PORT(S)
                target: ip address of the target host or its FQDN
                ports: a single port number or a range in the syntax xx-xx
                1024 is the max number of ports
 ```
 ## options
-```
+```bash
 --help          prints this help screen and exit
 --verbose       display incoming/outgoing packets
 --scan          one or multiple scans: SYN | NULL | FIN | XMAS | ACK | UDP
@@ -40,8 +39,8 @@ $ ft_nmap [OPTIONS] TARGET PORT(S)
                 mandatory if this interface is not present/active
 ```
 ## example output
-```
-$ ft_nmap --scan SYN ACK scanme.nmap.org 80-90
+```bash
+$ pscan --scan SYN ACK scanme.nmap.org 80-90
 
 Configurations:
 Target Ip-Address: 45.33.32.156
@@ -63,7 +62,6 @@ IP address: 45.33.32.156
 
 Open ports:
 Port       Service Name (if applicable)     Results                              [Conclusion]
-
 80         http                             SYN(Open) ACK(Unfiltered)            [Open]
 
 
@@ -71,29 +69,24 @@ Closed/Filtered/Unfiltered ports:
 Port       Service Name (if applicable)     Results                              [Conclusion]
 
 81         hosts2-ns                        SYN(Closed) ACK(Unfiltered)          [Closed]
-
 82         xfer                             SYN(Closed) ACK(Unfiltered)          [Closed]
-
 83         mit-ml-dev                       SYN(Closed) ACK(Unfiltered)          [Closed]
-
 84         ctf                              SYN(Closed) ACK(Unfiltered)          [Closed]
-
 85         mit-ml-dev                       SYN(Closed) ACK(Unfiltered)          [Closed]
-
 86         mfcobol                          SYN(Closed) ACK(Unfiltered)          [Closed]
-
 87         priv-term-l                      SYN(Closed) ACK(Unfiltered)          [Closed]
-
 88         kerberos-sec                     SYN(Closed) ACK(Unfiltered)          [Closed]
-
 89         su-mit-tg                        SYN(Closed) ACK(Unfiltered)          [Closed]
-
 90         dnsix                            SYN(Closed) ACK(Unfiltered)          [Closed]
 
 
 ```
 
+## requirements
+- linux
+- root privilege
+
 ## upcoming features
-- OS fingerprinting: Attempt to identify the operating system of the target host.
-- Simplified Version detection: Attempts to Identify the versions of running services on some open ports.
-- Configuration file for multiple host scanning
+- OS fingerprinting.
+- Simplified Version detection.
+- Configuration file for multiple host scanning.
