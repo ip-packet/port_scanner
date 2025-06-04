@@ -1,4 +1,4 @@
-#include "ft_nmap.h"
+#include <pscan.h> 
 
 void	*_scan_routine(void *arg) {
 	bool		is_udp = false;
@@ -142,7 +142,7 @@ int	main(int c, char **v) {
 	memset(scans, 0, sizeof(scans));
 
 	if  (DEBUG)
-		printf("size: %i in %li, scans: %p -> %p:%li\n",
+		printf("size: %li in %li, scans: %p -> %p:%li\n",
 		sizeof(Scan) * input.total_ports, sizeof(Scan), scans, scans + input.total_ports, sizeof(scans));
 
 	bool		check_lock_mutex = false;
