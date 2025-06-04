@@ -1,4 +1,4 @@
-#include "ft_nmap.h"
+#include <pscan.h> 
 
 bool	is_valid_ports(char *port, Options *input) {
 	if (!port) return false;

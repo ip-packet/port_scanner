@@ -1,4 +1,4 @@
-#include "ft_nmap.h"
+#include <pscan.h> 
 
 char      *itoa(char *s, size_t s_s, int n, bool t) {
 	int       si = 0, sn = n;

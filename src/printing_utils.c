@@ -1,4 +1,4 @@
-#include "ft_nmap.h"
+#include <pscan.h> 
 
 void	print_response_packets(struct tcphdr *tcp_hdr, struct icmphdr *icmp_hdr, int port) {
 	if (tcp_hdr)
@@ -134,7 +134,7 @@ void	print_help(bool options) {
 
 	printf("usage:\n");
 
-	printf("ft_nmap [OPTIONS] TARGET PORT(S)\n");
+	printf("pscan [OPTIONS] TARGET PORT(S)\n");
 	print_line(' ', f_col, NULL, NULL, false);
 	printf("target: ip address of the target host or its FQDN\n");
 	print_line(' ', f_col, NULL, NULL, false);
