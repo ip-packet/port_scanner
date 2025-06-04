@@ -1,5 +1,5 @@
-#ifndef	FT_NMAP_H
-#define	FT_NMAP_H
+#ifndef	PSCAN_H
+#define	PSCAN_H
 
 #include <stdio.h>
 #include <errno.h>
