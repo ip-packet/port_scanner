@@ -204,7 +204,8 @@ int	print_port_status(char *, PStatus, char *);
 void	print_response_packets(struct tcphdr*, struct icmphdr*, int);
 void      print_line(char, int, char *, char *, bool);
 
-char		*itoa(char*, size_t, int, bool);
+//char		*itoa(char*, size_t, int, bool);
+char *itoa(char *s, size_t s_s, int n, bool t);
 void		exit_call(char*, int);
 unsigned short 	csum(unsigned short*, int);
 char		*_interface_ip(char *, int);

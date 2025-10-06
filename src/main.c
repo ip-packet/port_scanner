@@ -1,4 +1,50 @@
-#include <pscan.h> 
+#include <pscan.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include "pscan.h"
+
+/*char *itoa(char *s, size_t s_s, int n, bool t) {
+    int si = 0, sn = n;
+    while (sn) { sn /= 10; si++; }
+    if (t) si++;
+    if (si > s_s) si = s_s;
+    s[si--] = '\0';
+    if (!n)
+        s[si] = '0';
+    else 
+        while (n && si) {
+            s[si--] = (n % 10) + 48;
+            n /= 10;
+        }
+    if (t) s[si] = '\t';
+    return s;
+}*/
+
+static bool scan_port(const char *host, int port) {
+    int sock;
+    struct sockaddr_in addr;
+    
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0)
+        return false;
+    
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    if (inet_pton(AF_INET, host, &addr.sin_addr) <= 0) {
+        close(sock);
+        return false;
+    }
+    
+    int res = connect(sock, (struct sockaddr *)&addr, sizeof(addr));
+    close(sock);
+    return (res == 0);
+}
 
 void	*_scan_routine(void *arg) {
 	bool		is_udp = false;
@@ -10,13 +56,27 @@ void	*_scan_routine(void *arg) {
 
 	for (int cur_type = 0; cur_type < scan_data->num_of_types; cur_type++) {
 		switch (scan_data->_scan_types[cur_type]) {
-			case SYN: scan_data->_scan_status[cur_type] = syn_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); break;
-			case ACK: scan_data->_scan_status[cur_type] = ack_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); break;
-			case UDP: is_udp = (scan_data->_scan_status[cur_type] = udp_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input)) == OPEN; break;
-			case FIN: scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 1, 0, 0, scan_input); break;
-			case null: scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 0, 0, 0, scan_input); break;
-			case XMAS: scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 1, 1, 1, scan_input); break;
-			case CUST: scan_data->_scan_status[cur_type] = custom_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); break;
+			case SYN: 
+                            scan_data->_scan_status[cur_type] = syn_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); 
+                            break;
+			case ACK: 
+                            scan_data->_scan_status[cur_type] = ack_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); 
+                            break;
+			case UDP: 
+                            is_udp = (scan_data->_scan_status[cur_type] = udp_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input)) == OPEN; 
+                            break;
+			case FIN: 
+                            scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 1, 0, 0, scan_input); 
+                            break;
+			case null: 
+                            scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 0, 0, 0, scan_input); 
+                            break;
+			case XMAS: 
+                            scan_data->_scan_status[cur_type] = fin_null_xmas_scans(scan_data->src, scan_data->dst, scan_data->port, 1, 1, 1, scan_input); 
+                            break;
+			case CUST: 
+                            scan_data->_scan_status[cur_type] = custom_scan(scan_data->src, scan_data->dst, scan_data->port, scan_input); 
+                            break;
 		}
 		cons[ scan_data->_scan_status[cur_type] ] += 1;
 	}
@@ -27,7 +87,8 @@ void	*_scan_routine(void *arg) {
 		if (cons[cur_state] > conclusion) {
 			conclusion = cons[cur_state];
 			scan_data->conclusion = cur_state;
-			if (cur_state == OPEN)	break;
+			if (cur_state == OPEN)
+                            break;
 		}
 
 	p = scan_data->service;
@@ -53,7 +114,7 @@ bool	prepare_configuration(Options *input, SType *scan_types, struct addrinfo *d
 		is_host_up = _icmp_check(src, dest, input);
 		printf("Host State: %s\n", is_host_up > 0 ? "Up" : !is_host_up ? "Down" : "Check Fail");
 		if (is_host_up <= 0)
-			return	false;
+			return false;
 	}
 
 	if (input->source_port)
@@ -84,7 +145,7 @@ bool	prepare_configuration(Options *input, SType *scan_types, struct addrinfo *d
 	printf("\n");
 
 	printf("Scanning...\n");
-	return	true;
+	return true;
 }
 
 int	main(int c, char **v) {
@@ -130,7 +191,7 @@ int	main(int c, char **v) {
 	SType	*ss = scan_types;
 
 	if (!prepare_configuration(&input, ss, dest, src))
-		return	1;
+		return 1;
 
 	signal(SIGPIPE, SIG_IGN);
 	signal(SIGQUIT, SIG_IGN);
@@ -151,7 +212,8 @@ int	main(int c, char **v) {
 
 	for (int cur_port = input.min_port, cur_thread = 0; cur_port <= input.max_port;) {
 
-		if (!workers[cur_thread].alive) workers[cur_thread].t_status = INIT;
+		if (!workers[cur_thread].alive) 
+                        workers[cur_thread].t_status = INIT;
 		else {
 			pthread_mutex_lock(&workers[cur_thread].mx);
 			check_lock_mutex = true;
@@ -178,10 +240,11 @@ int	main(int c, char **v) {
 				pthread_create(&workers[cur_thread].thread, NULL, _scan_routine, &workers[cur_thread]);
 				workers[cur_thread].alive = true;
 			}
-			if (DEBUG) printf("####thread:%i#### given %p -> %p [%li], in boudaries? %i\n",
-					workers[cur_thread].id, workers[cur_thread].scan_start, workers[cur_thread].scan_end,
-					workers[cur_thread].scan_end - workers[cur_thread].scan_start,
-					workers[cur_thread].scan_end > scans && workers[cur_thread].scan_end < scans + input.total_ports);
+			if (DEBUG) 
+                            printf("####thread:%i#### given %p -> %p [%li], in boundaries? %i\n",
+				workers[cur_thread].id, workers[cur_thread].scan_start, workers[cur_thread].scan_end,
+				workers[cur_thread].scan_end - workers[cur_thread].scan_start,
+				(workers[cur_thread].scan_end > scans && workers[cur_thread].scan_end < scans + input.total_ports));
 			pseudo_scan_struct += 1;
 			cur_port++;
 		}
@@ -192,7 +255,8 @@ int	main(int c, char **v) {
 		}
 
 		cur_thread++;
-		if (cur_thread >= input.num_of_threads) cur_thread = 0;
+		if (cur_thread >= input.num_of_threads)
+                    cur_thread = 0;
 	}
 
 	for (int i = 0; i < input.num_of_threads; i++) {
@@ -204,5 +268,43 @@ int	main(int c, char **v) {
 	freeaddrinfo(dest);
 
 	print_results(scans, input.total_ports, inet_ntoa(((struct sockaddr_in*)dest->ai_addr)->sin_addr), _s_time);
-}
 
+	int verbose = 0;
+	int argIndex = 1;
+    
+	if (c > 1 && strcmp(v[1], "-v") == 0) {
+		verbose = 1;
+		argIndex++;
+	}
+    
+	if (c - argIndex < 3) {
+		fprintf(stderr, "Usage: %s [-v] <host> <start_port> <end_port>\n", v[0]);
+		return 1;
+	}
+    
+	char *host = v[argIndex];
+	int start_port = atoi(v[argIndex+1]);
+	int end_port = atoi(v[argIndex+2]);
+    
+	if (verbose)
+		printf("Verbose mode enabled.\n");
+    
+	printf("Scanning host: %s from port %d to %d\n", host, start_port, end_port);
+    
+	int openCount = 0;
+	for (int port = start_port; port <= end_port; port++) {
+		if (verbose)
+			printf("Scanning port %d...\n", port);
+        
+		if (scan_port(host, port)) {
+			printf("Port %d is open.\n", port);
+			openCount++;
+		} else {
+			if (verbose)
+				printf("Port %d is closed.\n", port);
+		}
+	}
+    
+	printf("Scan complete. %d open port(s) found.\n", openCount);
+	return 0;
+}
