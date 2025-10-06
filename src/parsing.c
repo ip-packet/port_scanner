@@ -230,7 +230,7 @@ void	parse_input(Options *input, char **v, int c) {
 	if (c > 3) {
 		int	arg = 1;
 		for (; arg < c - 2;) {
-			if (!strcmp(v[arg], "--verbose") ||  !strcmp(v[arg], "-v")) {
+			if (!strcmp(v[arg], "--verbose")) {
 				input->verbose = 1;
 				arg++;
 			}
